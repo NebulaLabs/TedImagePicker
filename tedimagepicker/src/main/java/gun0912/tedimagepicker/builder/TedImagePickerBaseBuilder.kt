@@ -54,6 +54,10 @@ open class TedImagePickerBaseBuilder<out B : TedImagePickerBaseBuilder<B>>(
     internal var backButtonResId: Int = R.drawable.ic_arrow_back_black_24dp,
     @ColorRes
     internal var backButtonColorId: Int = R.color.black,
+    @ColorRes
+    internal var selectedBackgroundColor: Int = R.color.ted_image_picker_primary,
+    @ColorRes
+    internal var selectedTextColor: Int = R.color.white,
     internal var maxCount: Int = Int.MAX_VALUE,
     internal var maxCountMessage: String? = null,
     @StringRes
@@ -187,6 +191,16 @@ open class TedImagePickerBaseBuilder<out B : TedImagePickerBaseBuilder<B>>(
 
     fun buttonTextColor(@ColorRes buttonTextColorResId: Int): B {
         this.buttonTextColorResId = buttonTextColorResId
+        return this as B
+    }
+
+    fun selectedBackgroundColor(@ColorRes backgroundColor: Int) : B {
+        this.selectedBackgroundColor = backgroundColor
+        return this as B
+    }
+
+    fun selectedTextColor(@ColorRes textColor: Int) : B {
+        this.selectedTextColor = textColor
         return this as B
     }
 

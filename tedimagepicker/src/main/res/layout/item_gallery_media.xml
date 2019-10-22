@@ -32,6 +32,10 @@
             name="showDuration"
             type="boolean" />
 
+        <variable
+            name="isVideo"
+            type="boolean" />
+
     </data>
 
     <FrameLayout
@@ -43,48 +47,14 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
             <ImageView
                 android:id="@+id/iv_image"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintDimensionRatio="1:1"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 bind:imageUri="@{media.uri}" />
-
-            <FrameLayout
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:visibility="@{selectType == SelectType.MULTI}"
-                app:layout_constraintBottom_toBottomOf="@id/iv_image"
-                app:layout_constraintEnd_toEndOf="@id/iv_image"
-                app:layout_constraintStart_toStartOf="@id/iv_image"
-                app:layout_constraintTop_toTopOf="@id/iv_image">
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/ted_image_picker_selected_foreground"
-                    android:visibility="@{isSelected}" />
-
-                <TextView
-                    style="@style/TextAppearance.AppCompat.Body1"
-                    android:layout_width="@dimen/list_item_avatar_size_small"
-                    android:layout_height="@dimen/list_item_avatar_size_small"
-                    android:layout_gravity="end"
-                    android:layout_margin="@dimen/default_padding_small"
-                    android:background="@{isSelected? @drawable/bg_multi_image_selected : @drawable/bg_multi_image_unselected}"
-                    android:gravity="center"
-                    android:text="@{isSelected? String.valueOf(selectedNumber) : ``}"
-                    android:textColor="@color/white"
-                    tools:background="@drawable/bg_multi_image_selected"
-                    tools:text="5" />
-            </FrameLayout>
 
             <FrameLayout
                 android:id="@+id/view_zoom_out"
@@ -104,32 +74,114 @@
                     android:src="@drawable/ic_zoom_out_24dp" />
             </FrameLayout>
 
-            <FrameLayout
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/ted_image_picker_zoom_size"
-                    android:id="@+id/view_video_duration"
-                    android:visibility="@{showDuration}"
-                    android:layout_marginBottom="@dimen/default_padding_small"
-                    android:layout_marginStart="@dimen/default_padding_xsmall"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/view_zoom_out"
-            >
+            <gun0912.tedimagepicker.view.BorderView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/unselectedBorder"
+                    app:thickness="0dp"
+                    android:visibility="@{!isSelected &amp;&amp; isVideo}"
+                    app:bottomThickness="@dimen/ted_image_picker_video_length_bottom_height"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:backgroundColor="@color/ted_image_picker_duration_background"
+            />
+
+            <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="@{!isSelected &amp;&amp; isVideo}">
+
+                <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/ted_image_picker_video_length_bottom_height"
+                        android:id="@+id/view_video_duration"
+                        android:layout_alignParentBottom="true">
+
+                    <ImageView
+                            android:layout_width="@dimen/ted_image_picker_video_length_bottom_height"
+                            android:layout_height="@dimen/ted_image_picker_video_length_bottom_height"
+                            android:id="@+id/iv_videoIcon"
+                            android:src="@drawable/ic_videocam"
+                            android:tint="@color/white"
+                            android:padding="@dimen/default_padding_small"
+                    />
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:id="@+id/video_duration_textview"
+                            android:text="0:00"
+                            android:layout_gravity="end"
+                            android:gravity="center"
+                            android:ellipsize="marquee"
+                            android:marqueeRepeatLimit="marquee_forever"
+                            android:textColor="@color/white"
+                            android:paddingStart="@dimen/default_padding_small"
+                            android:paddingEnd="@dimen/default_padding_small"/>
+
+                </FrameLayout>
+            </RelativeLayout>
+
+            <gun0912.tedimagepicker.view.BorderView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/selectedBorder"
+                    app:thickness="4dp"
+                    android:visibility="@{isSelected}"
+                    app:bottomThickness="@dimen/ted_image_picker_video_length_bottom_height"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+            />
+
+            <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="@{isSelected &amp;&amp; isVideo}">
 
                 <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:id="@+id/video_duration_textview"
-                        android:background="@color/ted_image_picker_duration_background"
-                        android:text="0:00"
-                        android:layout_gravity="end"
-                        android:ellipsize="marquee"
-                        android:marqueeRepeatLimit="marquee_forever"
+                        style="@style/TextAppearance.AppCompat.Body1"
+                        android:layout_width="@dimen/list_item_avatar_size"
+                        android:layout_height="@dimen/list_item_avatar_size"
+                        android:id="@+id/iv_selectedNumber"
+                        android:layout_alignParentEnd="true"
+                        android:background="@color/ted_image_picker_primary"
+                        android:gravity="center"
+                        android:visibility="@{isSelected}"
+                        android:text="@{isSelected? String.valueOf(selectedNumber) : ``}"
                         android:textColor="@color/white"
-                        android:paddingStart="@dimen/default_padding_small"
-                        android:paddingEnd="@dimen/default_padding_small"/>
+                        tools:text="5" />
 
-            </FrameLayout>
+                <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/ted_image_picker_video_length_bottom_height"
+                        android:id="@+id/view_video_duration_selected"
+                        android:layout_alignParentBottom="true">
+
+                    <ImageView
+                            android:layout_width="@dimen/ted_image_picker_video_length_bottom_height"
+                            android:layout_height="@dimen/ted_image_picker_video_length_bottom_height"
+                            android:id="@+id/iv_videoIcon_selected"
+                            android:src="@drawable/ic_videocam"
+                            android:tint="@color/white"
+                            android:padding="@dimen/default_padding_small"
+                    />
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:id="@+id/video_duration_textview_selected"
+                            android:text="0:00"
+                            android:layout_gravity="end"
+                            android:gravity="center"
+                            android:ellipsize="marquee"
+                            android:marqueeRepeatLimit="marquee_forever"
+                            android:textColor="@color/white"
+                            android:paddingStart="@dimen/default_padding_small"
+                            android:paddingEnd="@dimen/default_padding_small"/>
+
+                </FrameLayout>
+
+            </RelativeLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </FrameLayout>
 </layout>

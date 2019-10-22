@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Point
 import android.graphics.PorterDuff
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
@@ -44,6 +45,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
+import kotlin.math.ceil
 
 
 internal class TedImagePickerActivity : AppCompatActivity() {
@@ -191,7 +193,7 @@ internal class TedImagePickerActivity : AppCompatActivity() {
     }
 
     private fun setupMediaRecyclerView() {
-        mediaAdapter = MediaAdapter(this, builder).apply {
+        mediaAdapter = MediaAdapter(this, builder, dp2px(137)).apply {
             onItemClickListener = object : BaseRecyclerViewAdapter.OnItemClickListener<Media> {
                 override fun onItemClick(data: Media, itemPosition: Int, layoutPosition: Int) {
                     this@TedImagePickerActivity.onMediaClick(data.uri)
@@ -209,8 +211,17 @@ internal class TedImagePickerActivity : AppCompatActivity() {
         }
 
         binding.layoutContent.rvMedia.run {
-            layoutManager = GridLayoutManager(this@TedImagePickerActivity, IMAGE_SPAN_COUNT)
-            addItemDecoration(GridSpacingItemDecoration(IMAGE_SPAN_COUNT, 8))
+
+            val size = Point()
+            windowManager.defaultDisplay.getSize(size)
+
+            val columns = ceil(size.x.toFloat() / dp2px(138).toFloat()).toInt()
+
+            val squareColumns = size.x / columns
+            mediaAdapter.setSquareSize(squareColumns)
+
+            layoutManager = GridLayoutManager(this@TedImagePickerActivity, columns)
+            addItemDecoration(GridSpacingItemDecoration(columns, 8))
             itemAnimator = null
             adapter = mediaAdapter
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -430,5 +441,9 @@ internal class TedImagePickerActivity : AppCompatActivity() {
             data.getParcelableArrayListExtra(EXTRA_SELECTED_URI_LIST)
     }
 
+    fun dp2px(dp: Int): Int {
+        val density = this.resources.displayMetrics.density
+        return (dp.toFloat() * density + 0.5f).toInt()
+    }
 }
 

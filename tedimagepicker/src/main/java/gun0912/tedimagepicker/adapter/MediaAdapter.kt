@@ -1,13 +1,17 @@
 package gun0912.tedimagepicker.adapter
 
 import android.app.Activity
+import android.content.res.ColorStateList
+import android.graphics.drawable.ColorDrawable
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.os.Handler
 import android.text.format.DateUtils
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import gun0912.tedimagepicker.R
 import gun0912.tedimagepicker.base.BaseSimpleHeaderAdapter
@@ -23,12 +27,17 @@ import java.io.File
 
 internal class MediaAdapter(
     private val activity: Activity,
-    private val builder: TedImagePickerBaseBuilder<*>
+    private val builder: TedImagePickerBaseBuilder<*>,
+    private var squareSize: Int
 ) :
     BaseSimpleHeaderAdapter<Media>(if (builder.showCameraTile) 1 else 0) {
 
     internal val selectedUriList: MutableList<Uri> = mutableListOf()
     var onMediaAddListener: (() -> Unit)? = null
+
+    fun setSquareSize(size: Int) {
+        squareSize = size
+    }
 
     override fun getHeaderViewHolder(parent: ViewGroup) = CameraViewHolder(parent)
     override fun getItemViewHolder(parent: ViewGroup) = ImageViewHolder(parent)
@@ -40,7 +49,6 @@ internal class MediaAdapter(
             addMedia(uri)
         }
     }
-
 
     private fun addMedia(uri: Uri) {
         if (selectedUriList.size == builder.maxCount) {
@@ -56,7 +64,6 @@ internal class MediaAdapter(
 
     private fun getViewPosition(it: Uri): Int =
         items.indexOfFirst { media -> media.uri == it } + headerCount
-
 
     private fun removeMedia(uri: Uri) {
         val position = getViewPosition(uri)
@@ -75,9 +82,15 @@ internal class MediaAdapter(
     inner class ImageViewHolder(parent: ViewGroup) :
         BaseViewHolder<ItemGalleryMediaBinding, Media>(parent, R.layout.item_gallery_media) {
 
+        var thisData: Media? = null
+
         init {
+            itemView.layoutParams.width = squareSize
+            itemView.layoutParams.height = squareSize
+
             binding.run {
                 selectType = builder.selectType
+                isSelected = false
                 viewZoomOut.setOnClickListener {
                     startZoomActivity(getItem(adapterPosition))
                 }
@@ -96,19 +109,27 @@ internal class MediaAdapter(
                 }
 
                 showDuration = builder.mediaType == MediaType.VIDEO
+                isVideo = showDuration
+
+                if (!isVideo) {
+                    selectedBorder.bottomThickness = -1
+                }
+
+                selectedBorder.borderBackgroundColor = ContextCompat.getColor(context, builder.selectedBackgroundColor)
+                ivSelectedNumber.background = ColorDrawable(ContextCompat.getColor(context, builder.selectedBackgroundColor))
+
+                val textColor = ContextCompat.getColor(context, builder.selectedTextColor)
+                ivSelectedNumber.setTextColor(textColor)
+                videoDurationTextviewSelected.setTextColor(textColor)
+                ivVideoIconSelected.setColorFilter(textColor)
 
                 if (showDuration) {
                     val retriever = MediaMetadataRetriever()
                     retriever.setDataSource(context, data.uri)
 
-                    var length: Long? = null
+                    var length: Long = 0
                     try { length = (Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)) / 1000).toLong() } catch (e: Exception) {}
-
-                    if (length != null) {
-                        itemView.video_duration_textview.text = "${DateUtils.formatElapsedTime(length)}"
-                    } else {
-                        itemView.view_video_duration.visibility = View.GONE
-                    }
+                    itemView.video_duration_textview.text = "${DateUtils.formatElapsedTime(length)}"
                 }
 
                 showZoom = !isSelected && (builder.mediaType == MediaType.IMAGE) && builder.showZoomIndicator
@@ -127,7 +148,6 @@ internal class MediaAdapter(
             ).toBundle()
 
             activity.startActivity(TedImageZoomActivity.getIntent(activity, media.uri), options)
-
         }
     }
 
@@ -136,6 +156,8 @@ internal class MediaAdapter(
     ) {
 
         init {
+            itemView.layoutParams.width = squareSize
+            itemView.layoutParams.height = squareSize
             binding.ivImage.setImageResource(builder.cameraTileImageResId)
             itemView.setBackgroundResource(builder.cameraTileBackgroundResId)
         }

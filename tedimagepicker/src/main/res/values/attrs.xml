@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="BorderView">
+        <attr name="backgroundColor" format="color"/>
+        <attr name="thickness" format="dimension"/>
+        <attr name="leftThickness" format="dimension"/>
+        <attr name="rightThickness" format="dimension"/>
+        <attr name="topThickness" format="dimension"/>
+        <attr name="bottomThickness" format="dimension"/>
+    </declare-styleable>
+
+    <declare-styleable name="MyPercentage">
+        <attr name="ringColor" format="color" />
+        <attr name="ringProgressColor" format="color" />
+        <attr name="ringWidth" format="dimension" />
+        <attr name="percTextColor" format="color" />
+        <attr name="percTextSize" format="dimension" />
+        <attr name="max" format="integer" />
+        <attr name="showText" format="boolean" />
+        <attr name="progress" format="integer" />
+        <attr name="ringPadding" format="dimension" />
+        <attr name="style">
+            <enum name="STROKE" value="0" />
+            <enum name="FILL" value="1" />
+        </attr>
+    </declare-styleable>
+</resources>

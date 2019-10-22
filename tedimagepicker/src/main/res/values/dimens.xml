@@ -38,4 +38,7 @@
     <dimen name="ted_image_picker_done_button_horizontal_padding">12dp</dimen>
     <dimen name="ted_image_picker_zoom_size">20dp</dimen>
 
+    <dimen name="ted_image_picker_video_length_bottom_height">35dp</dimen>
+    <dimen name="no_thicness">-1dp</dimen>
+
 </resources>

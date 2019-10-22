@@ -46,7 +46,10 @@ class MainActivity : AppCompatActivity() {
                 .mediaType(MediaType.VIDEO)
                 .toolbarBackgroundColor(R.color.error_color_material_dark)
                 .backButtonColor(R.color.white)
+                .buttonBackground(android.R.color.transparent)
                 .toolbarTitleColor(R.color.white)
+                .selectedBackgroundColor(R.color.sample_yellow)
+                .selectedTextColor(R.color.black)
                 .startMultiImage { uri -> showSingleImage(uri.first()) }
         }
     }
