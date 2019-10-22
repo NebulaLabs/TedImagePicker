@@ -4,6 +4,7 @@ import android.app.Activity
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.text.format.DateUtils
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityOptionsCompat
@@ -100,8 +101,14 @@ internal class MediaAdapter(
                     val retriever = MediaMetadataRetriever()
                     retriever.setDataSource(context, data.uri)
 
-                    val length = (Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)) / 1000).toLong()
-                    itemView.video_duration_textview.text = "${DateUtils.formatElapsedTime(length)}"
+                    var length: Long? = null
+                    try { length = (Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)) / 1000).toLong() } catch (e: Exception) {}
+
+                    if (length != null) {
+                        itemView.video_duration_textview.text = "${DateUtils.formatElapsedTime(length)}"
+                    } else {
+                        itemView.view_video_duration.visibility = View.GONE
+                    }
                 }
 
                 showZoom = !isSelected && (builder.mediaType == MediaType.IMAGE) && builder.showZoomIndicator
