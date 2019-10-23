@@ -130,6 +130,7 @@ internal class MediaAdapter(
                     var length: Long = 0
                     try { length = (Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)) / 1000).toLong() } catch (e: Exception) {}
                     itemView.video_duration_textview.text = "${DateUtils.formatElapsedTime(length)}"
+                    itemView.video_duration_textview_selected.text = "${DateUtils.formatElapsedTime(length)}"
                 }
 
                 showZoom = !isSelected && (builder.mediaType == MediaType.IMAGE) && builder.showZoomIndicator

@@ -14,7 +14,8 @@
 
         <variable
             name="isSelected"
-            type="boolean" />
+            type="boolean"
+        />
 
         <variable
             name="selectedNumber"
@@ -127,7 +128,7 @@
                     android:layout_height="match_parent"
                     android:id="@+id/selectedBorder"
                     app:thickness="4dp"
-                    android:visibility="@{isSelected}"
+                    android:visibility="@{isSelected, default=invisible}"
                     app:bottomThickness="@dimen/ted_image_picker_video_length_bottom_height"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -136,7 +137,7 @@
             <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:visibility="@{isSelected &amp;&amp; isVideo}">
+                    android:visibility="@{isVideo &amp;&amp; isSelected, default=invisible}">
 
                 <TextView
                         style="@style/TextAppearance.AppCompat.Body1"
@@ -146,8 +147,7 @@
                         android:layout_alignParentEnd="true"
                         android:background="@color/ted_image_picker_primary"
                         android:gravity="center"
-                        android:visibility="@{isSelected}"
-                        android:text="@{isSelected? String.valueOf(selectedNumber) : ``}"
+                        android:text="@{String.valueOf(selectedNumber)}"
                         android:textColor="@color/white"
                         tools:text="5" />
 
