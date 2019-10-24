@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import com.bumptech.glide.Glide
 import gun0912.tedimagepicker.R
 import gun0912.tedimagepicker.base.BaseSimpleHeaderAdapter
@@ -131,6 +132,12 @@ internal class MediaAdapter(
                     try { length = (Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)) / 1000).toLong() } catch (e: Exception) {}
                     itemView.video_duration_textview.text = "${DateUtils.formatElapsedTime(length)}"
                     itemView.video_duration_textview_selected.text = "${DateUtils.formatElapsedTime(length)}"
+
+                    if (builder.typeface != null) {
+                        itemView.video_duration_textview.typeface = ResourcesCompat.getFont(context, builder.typeface!!)
+                        itemView.video_duration_textview_selected.typeface = ResourcesCompat.getFont(context, builder.typeface!!)
+                        itemView.iv_selectedNumber.typeface = ResourcesCompat.getFont(context, builder.typeface!!)
+                    }
                 }
 
                 showZoom = !isSelected && (builder.mediaType == MediaType.IMAGE) && builder.showZoomIndicator

@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Point
 import android.graphics.PorterDuff
+import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
@@ -19,10 +20,12 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.load.engine.Resource
 import com.gun0912.tedonactivityresult.model.ActivityResult
 import com.tedpark.tedonactivityresult.rx2.TedRxOnActivityResult
 import gun0912.tedimagepicker.adapter.AlbumAdapter
@@ -41,6 +44,7 @@ import gun0912.tedimagepicker.util.MediaUtil
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.activity_ted_image_picker.*
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -51,7 +55,7 @@ import kotlin.math.ceil
 internal class TedImagePickerActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityTedImagePickerBinding
-    private val albumAdapter = AlbumAdapter()
+    private val albumAdapter = AlbumAdapter(null)
     private lateinit var mediaAdapter: MediaAdapter
     private lateinit var selectedMediaAdapter: SelectedMediaAdapter
 
@@ -77,12 +81,17 @@ internal class TedImagePickerActivity : AppCompatActivity() {
 
     private fun setupToolbar() {
         setSupportActionBar(binding.toolbar)
+        if (builder.typeface != null) binding.toolbar.changeToolbarFont(ResourcesCompat.getFont(this, builder.typeface!!)?: Typeface.DEFAULT)
         val toolbarColor = ContextCompat.getColor(this@TedImagePickerActivity, builder.toolbarColorBackgroundResId)
         binding.toolbarColor = toolbarColor
         binding.titleTextColor = ContextCompat.getColor(this@TedImagePickerActivity, builder.toolbarTitleColorResId)
 
         if (Build.VERSION.SDK_INT >= 21) {
             window.statusBarColor = toolbarColor.manipulate(factor = 0.95f)
+        }
+
+        if (builder.typeface != null) {
+            home_view_folders.typeface = ResourcesCompat.getFont(this, builder.typeface!!)
         }
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -156,6 +165,8 @@ internal class TedImagePickerActivity : AppCompatActivity() {
 
         builder = bundle?.getParcelable(EXTRA_BUILDER)
             ?: TedImagePickerBaseBuilder<TedImagePickerBaseBuilder<*>>()
+
+        albumAdapter.builder = builder
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

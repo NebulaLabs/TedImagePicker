@@ -5,10 +5,12 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Parcelable
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.FontRes
 import androidx.annotation.StringRes
 import com.tedpark.tedonactivityresult.rx2.TedRxOnActivityResult
 import com.tedpark.tedpermission.rx2.TedRx2Permission
@@ -22,6 +24,7 @@ import gun0912.tedimagepicker.builder.type.MediaType
 import gun0912.tedimagepicker.builder.type.SelectType
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
+import java.lang.reflect.Type
 
 @Suppress("UNCHECKED_CAST")
 @Parcelize
@@ -39,6 +42,8 @@ open class TedImagePickerBaseBuilder<out B : TedImagePickerBaseBuilder<B>>(
     internal var titleResId: Int = R.string.ted_image_picker_title,
     internal var buttonGravity: ButtonGravity = ButtonGravity.TOP,
     internal var buttonText: String? = null,
+    @FontRes
+    internal var typeface: Int? = null,
     @ColorRes
     internal var toolbarColorBackgroundResId: Int = R.color.white,
     @ColorRes
@@ -166,6 +171,11 @@ open class TedImagePickerBaseBuilder<out B : TedImagePickerBaseBuilder<B>>(
 
     fun toolbarTitleColor(@ColorRes colorId: Int): B {
         this.toolbarTitleColorResId = colorId
+        return this as B
+    }
+
+    fun typeface(@FontRes fontId: Int): B {
+        this.typeface = fontId
         return this as B
     }
 

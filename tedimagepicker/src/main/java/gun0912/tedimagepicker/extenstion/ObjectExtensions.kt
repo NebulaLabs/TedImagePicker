@@ -1,6 +1,9 @@
 package gun0912.tedimagepicker.extenstion
 
 import android.graphics.Color
+import android.graphics.Typeface
+import android.widget.TextView
+import androidx.appcompat.widget.Toolbar
 import kotlin.math.min
 import kotlin.math.round
 
@@ -15,4 +18,14 @@ fun Int.manipulate(factor: Float = 1f, alpha: Float = 1f): Int {
         min(g, 255),
         min(b, 255)
     )
+}
+
+fun Toolbar.changeToolbarFont(typeface: Typeface){
+    for (i in 0 until childCount) {
+        val view = getChildAt(i)
+        if (view is TextView && view.text == title) {
+            view.typeface = typeface
+            break
+        }
+    }
 }
