@@ -48,6 +48,8 @@ open class TedImagePickerBaseBuilder<out B : TedImagePickerBaseBuilder<B>>(
     internal var toolbarColorBackgroundResId: Int = R.color.white,
     @ColorRes
     internal var toolbarTitleColorResId: Int = R.color.black,
+    @ColorRes
+    internal var mediaCountTextColor: Int = R.color.ted_image_picker_primary,
     @DrawableRes
     internal var buttonBackgroundResId: Int = R.drawable.btn_done_button,
     @ColorRes
@@ -211,6 +213,11 @@ open class TedImagePickerBaseBuilder<out B : TedImagePickerBaseBuilder<B>>(
 
     fun selectedTextColor(@ColorRes textColor: Int) : B {
         this.selectedTextColor = textColor
+        return this as B
+    }
+
+    fun mediaCounterTextColor(@ColorRes textColor: Int) : B {
+        this.mediaCountTextColor = textColor
         return this as B
     }
 

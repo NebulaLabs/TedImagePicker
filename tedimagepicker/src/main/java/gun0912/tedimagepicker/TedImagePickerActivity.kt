@@ -45,6 +45,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_ted_image_picker.*
+import kotlinx.android.synthetic.main.layout_done_button.view.*
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -101,7 +102,6 @@ internal class TedImagePickerActivity : AppCompatActivity() {
             drawable.setColorFilter(ContextCompat.getColor(this@TedImagePickerActivity, builder.backButtonColorId), PorterDuff.Mode.SRC_IN)
             binding.toolbar.navigationIcon = drawable
         }
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -122,6 +122,10 @@ internal class TedImagePickerActivity : AppCompatActivity() {
 
     private fun setupButton() {
         with(binding) {
+            if (builder.typeface != null) {
+                viewDoneTop.doneButton.typeface = ResourcesCompat.getFont(applicationContext, builder.typeface!!)
+            }
+
             buttonGravity = builder.buttonGravity
             buttonText = builder.buttonText ?: getString(builder.buttonTextResId)
             buttonTextColor = ContextCompat.getColor(this@TedImagePickerActivity, builder.buttonTextColorResId)
@@ -182,6 +186,7 @@ internal class TedImagePickerActivity : AppCompatActivity() {
 
 
     private fun setupAlbumRecyclerView() {
+        mediaCounter.setTextColor(ContextCompat.getColor(applicationContext, builder.mediaCountTextColor))
 
         binding.rvAlbum.run {
 
