@@ -1,12 +1,14 @@
 package gun0912.tedimagepicker.adapter
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.res.ColorStateList
 import android.graphics.drawable.ColorDrawable
 import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Handler
 import android.text.format.DateUtils
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -109,6 +111,10 @@ internal class MediaAdapter(
                     selectedNumber = selectedUriList.indexOf(data.uri) + 1
                 }
 
+                itemView.warning_view.setOnClickListener {
+                    Toast.makeText(context, "Error with ${data.uri}", Toast.LENGTH_LONG).show()
+                }
+
                 showDuration = builder.mediaType == MediaType.VIDEO
                 isVideo = showDuration
 
@@ -124,20 +130,32 @@ internal class MediaAdapter(
                 videoDurationTextviewSelected.setTextColor(textColor)
                 ivVideoIconSelected.setColorFilter(textColor)
 
-                if (showDuration) {
-                    val retriever = MediaMetadataRetriever()
-                    retriever.setDataSource(context, data.uri)
+                try {
+                    if (showDuration) {
+                        val retriever = MediaMetadataRetriever()
+                        retriever.setDataSource(context, data.uri)
 
-                    var length: Long = 0
-                    try { length = (Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)) / 1000).toLong() } catch (e: Exception) {}
-                    itemView.video_duration_textview.text = "${DateUtils.formatElapsedTime(length)}"
-                    itemView.video_duration_textview_selected.text = "${DateUtils.formatElapsedTime(length)}"
+                        var length: Long = 0
+                        try {
+                            length =
+                                (Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)) / 1000).toLong()
+                        } catch (e: Exception) {
+                        }
+                        itemView.video_duration_textview.text = "${DateUtils.formatElapsedTime(length)}"
+                        itemView.video_duration_textview_selected.text = "${DateUtils.formatElapsedTime(length)}"
 
-                    if (builder.typeface != null) {
-                        itemView.video_duration_textview.typeface = ResourcesCompat.getFont(context, builder.typeface!!)
-                        itemView.video_duration_textview_selected.typeface = ResourcesCompat.getFont(context, builder.typeface!!)
-                        itemView.iv_selectedNumber.typeface = ResourcesCompat.getFont(context, builder.typeface!!)
+                        if (builder.typeface != null) {
+                            itemView.video_duration_textview.typeface =
+                                ResourcesCompat.getFont(context, builder.typeface!!)
+                            itemView.video_duration_textview_selected.typeface =
+                                ResourcesCompat.getFont(context, builder.typeface!!)
+                            itemView.iv_selectedNumber.typeface = ResourcesCompat.getFont(context, builder.typeface!!)
+                        }
                     }
+                } catch (e: Exception) {
+                    Log.i("FAIL", "Failed for ${data.uri}")
+                    itemView.item_preview.visibility = View.GONE
+                    itemView.warning_view.visibility = View.VISIBLE
                 }
 
                 showZoom = !isSelected && (builder.mediaType == MediaType.IMAGE) && builder.showZoomIndicator
