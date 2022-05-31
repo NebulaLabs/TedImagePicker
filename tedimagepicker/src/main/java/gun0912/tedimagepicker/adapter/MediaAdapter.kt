@@ -11,6 +11,9 @@ import android.text.format.DateUtils
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
+import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -32,7 +35,8 @@ import java.util.concurrent.TimeUnit
 
 internal class MediaAdapter(
     private val activity: Activity,
-    private val builder: TedImagePickerBaseBuilder<*>
+    private val builder: TedImagePickerBaseBuilder<*>,
+    private var squareSize: Int
 ) : BaseSimpleHeaderAdapter<Media>(if (builder.showCameraTile) 1 else 0) {
 
     internal val selectedUriList: MutableList<Uri> = mutableListOf()
@@ -114,7 +118,7 @@ internal class MediaAdapter(
                     selectedNumber = selectedUriList.indexOf(data.uri) + 1
                 }
 
-                itemView.warning_view.setOnClickListener {
+                itemView.findViewById<TextView>(R.id.warning_view)?.setOnClickListener {
                     Toast.makeText(context, "Error with ${data.uri}", Toast.LENGTH_LONG).show()
                 }
 
@@ -144,21 +148,21 @@ internal class MediaAdapter(
                                 (Integer.parseInt(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)) / 1000).toLong()
                         } catch (e: Exception) {
                         }
-                        itemView.video_duration_textview.text = "${DateUtils.formatElapsedTime(length)}"
-                        itemView.video_duration_textview_selected.text = "${DateUtils.formatElapsedTime(length)}"
+                        itemView.findViewById<TextView>(R.id.video_duration_textview)?.text = "${DateUtils.formatElapsedTime(length)}"
+                        itemView.findViewById<TextView>(R.id.video_duration_textview_selected)?.text = "${DateUtils.formatElapsedTime(length)}"
 
                         if (builder.typeface != null) {
-                            itemView.video_duration_textview.typeface =
+                            itemView.findViewById<TextView>(R.id.video_duration_textview)?.typeface =
                                 ResourcesCompat.getFont(context, builder.typeface!!)
-                            itemView.video_duration_textview_selected.typeface =
+                            itemView.findViewById<TextView>(R.id.video_duration_textview_selected)?.typeface =
                                 ResourcesCompat.getFont(context, builder.typeface!!)
-                            itemView.iv_selectedNumber.typeface = ResourcesCompat.getFont(context, builder.typeface!!)
+                            itemView.findViewById<TextView>(R.id.iv_selectedNumber)?.typeface = ResourcesCompat.getFont(context, builder.typeface!!)
                         }
                     }
                 } catch (e: Exception) {
                     Log.i("FAIL", "Failed for ${data.uri}")
-                    itemView.item_preview.visibility = View.GONE
-                    itemView.warning_view.visibility = View.VISIBLE
+                    itemView.findViewById<ConstraintLayout>(R.id.item_preview)?.visibility = View.GONE
+                    itemView.findViewById<TextView>(R.id.warning_view).visibility = View.VISIBLE
                 }
 
                 showZoom =

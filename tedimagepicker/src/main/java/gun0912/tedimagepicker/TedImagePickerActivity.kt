@@ -45,8 +45,6 @@ import gun0912.tedimagepicker.util.ToastUtil
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.activity_ted_image_picker.*
-import kotlinx.android.synthetic.main.layout_done_button.view.*
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -104,7 +102,7 @@ internal class TedImagePickerActivity : AppCompatActivity() {
         }
 
         if (builder.typeface != null) {
-            home_view_folders.typeface = ResourcesCompat.getFont(this, builder.typeface!!)
+            binding.homeViewFolders.typeface = ResourcesCompat.getFont(this, builder.typeface!!)
         }
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -201,7 +199,7 @@ internal class TedImagePickerActivity : AppCompatActivity() {
 
 
     private fun setupAlbumRecyclerView() {
-        mediaCounter.setTextColor(ContextCompat.getColor(applicationContext, builder.mediaCountTextColor))
+        binding.mediaCounter.setTextColor(ContextCompat.getColor(applicationContext, builder.mediaCountTextColor))
 
         val albumAdapter = albumAdapter.apply {
             onItemClickListener = object : BaseRecyclerViewAdapter.OnItemClickListener<Album> {

@@ -1,6 +1,7 @@
 package gun0912.tedimagepicker.adapter
 
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import com.bumptech.glide.Glide
 import gun0912.tedimagepicker.R
@@ -11,7 +12,7 @@ import gun0912.tedimagepicker.databinding.ItemAlbumBinding
 import gun0912.tedimagepicker.model.Album
 import gun0912.tedimagepicker.util.TextFormatUtil
 
-internal class AlbumAdapter(private val builder: TedImagePickerBaseBuilder<*>) :
+internal class AlbumAdapter(var builder: TedImagePickerBaseBuilder<*>) :
     BaseRecyclerViewAdapter<Album, AlbumAdapter.AlbumViewHolder>() {
 
     private var selectedPosition = 0
@@ -33,7 +34,7 @@ internal class AlbumAdapter(private val builder: TedImagePickerBaseBuilder<*>) :
         override fun bind(data: Album) {
             if (builder?.typeface != null) {
                 builder?.typeface.let {
-                    itemView.tv_name.typeface = ResourcesCompat.getFont(context, it!!)
+                    itemView.findViewById<TextView>(R.id.tv_name)?.typeface = ResourcesCompat.getFont(context, it!!)
                 }
             }
             binding.album = data

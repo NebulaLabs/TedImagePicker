@@ -31,8 +31,10 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    kapt {
+        correctErrorTypes true
+    }
 }
-
 dependencies {
     implementation project(':tedimagepicker')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
