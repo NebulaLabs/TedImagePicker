@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-parcelize'
 
 android {
     compileSdkVersion versions.compileSdkVersion
@@ -25,10 +25,6 @@ android {
         }
     }
 
-    androidExtensions {
-        experimental = true
-    }
-
 }
 
 dependencies {
@@ -45,10 +41,10 @@ dependencies {
     implementation deps.glide.glide
     annotationProcessor deps.glide.annotation
 
-    implementation 'gun0912.ted:tedpermission-rx2:2.2.2'
-    implementation 'gun0912.ted:tedonactivityresult-rx2:1.0.6'
+    implementation 'io.github.ParkSangGwon:tedpermission-rx2:3.3.0'
+    implementation 'io.github.ParkSangGwon:tedonactivityresult-rx2:1.0.10'
 
     implementation 'com.alexvasilkov:gesture-views:2.5.2'
 }
 
-apply from: rootProject.file('publish.gradle')
+apply plugin: "com.vanniktech.maven.publish"

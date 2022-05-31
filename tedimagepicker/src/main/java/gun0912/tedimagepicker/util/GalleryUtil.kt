@@ -1,8 +1,10 @@
 package gun0912.tedimagepicker.util
 
+import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
 import gun0912.tedimagepicker.R
 import gun0912.tedimagepicker.builder.type.MediaType
@@ -14,6 +16,7 @@ import java.io.File
 internal class GalleryUtil {
     companion object {
 
+        private const val INDEX_MEDIA_ID = MediaStore.MediaColumns._ID
         private const val INDEX_MEDIA_URI = MediaStore.MediaColumns.DATA
         private const val INDEX_DATE_ADDED = MediaStore.MediaColumns.DATE_ADDED
 
@@ -37,14 +40,25 @@ internal class GalleryUtil {
                     }
 
                     val sortOrder = "$INDEX_DATE_ADDED DESC"
-                    val projection = arrayOf(INDEX_MEDIA_URI, albumName, INDEX_DATE_ADDED)
+
+                    val projection = arrayOf(
+                        INDEX_MEDIA_ID,
+                        INDEX_MEDIA_URI,
+                        albumName,
+                        INDEX_DATE_ADDED
+                    )
+                    val selection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        MediaStore.Images.Media.SIZE + " > 0"
+                    } else {
+                        null
+                    }
                     val cursor =
-                        context.contentResolver.query(uri, projection, null, null, sortOrder)
+                        context.contentResolver.query(uri, projection, selection, null, sortOrder)
                     val albumList: List<Album> = cursor?.let {
 
                         val totalImageList =
                             generateSequence { if (cursor.moveToNext()) cursor else null }
-                                .map { getImage(it) }
+                                .map { getImage(it, mediaType) }
                                 .filterNotNull()
                                 .toList()
 
@@ -87,18 +101,31 @@ internal class GalleryUtil {
         private fun getAlbum(entry: Map.Entry<String, List<Media>>) =
             Album(entry.key, entry.value[0].uri, entry.value)
 
-        private fun getImage(cursor: Cursor): Media? =
+        private fun getImage(cursor: Cursor, mediaType: MediaType): Media? =
             try {
                 cursor.run {
                     val folderName = getString(getColumnIndex(albumName))
-                    val mediaPath = getString(getColumnIndex(INDEX_MEDIA_URI))
-                    val mediaUri: Uri = Uri.fromFile(File(mediaPath))
+                    val mediaUri = getMediaUri(mediaType)
                     val datedAddedSecond = getLong(getColumnIndex(INDEX_DATE_ADDED))
                     Media(folderName, mediaUri, datedAddedSecond)
                 }
             } catch (exception: Exception) {
                 exception.printStackTrace()
                 null
+            }
+
+        private fun Cursor.getMediaUri(mediaType: MediaType): Uri =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val id = getLong(getColumnIndex(INDEX_MEDIA_ID))
+
+                val contentUri = when (mediaType) {
+                    MediaType.IMAGE -> MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                    MediaType.VIDEO -> MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                }
+                ContentUris.withAppendedId(contentUri, id)
+            } else {
+                val mediaPath = getString(getColumnIndex(INDEX_MEDIA_URI))
+                Uri.fromFile(File(mediaPath))
             }
     }
 }

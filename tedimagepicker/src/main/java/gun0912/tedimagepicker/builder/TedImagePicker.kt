@@ -1,8 +1,10 @@
 package gun0912.tedimagepicker.builder
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
 import gun0912.tedimagepicker.builder.listener.OnErrorListener
+import gun0912.tedimagepicker.builder.listener.ImageSelectCancelListener
 import gun0912.tedimagepicker.builder.listener.OnMultiSelectedListener
 import gun0912.tedimagepicker.builder.listener.OnSelectedListener
 import gun0912.tedimagepicker.builder.type.SelectType
@@ -15,6 +17,7 @@ class TedImagePicker {
         fun with(context: Context) = Builder(WeakReference(context))
     }
 
+    @SuppressLint("ParcelCreator")
     class Builder(private val contextWeakReference: WeakReference<Context>) :
         TedImagePickerBaseBuilder<Builder>() {
 
@@ -24,14 +27,26 @@ class TedImagePicker {
             return this
         }
 
-        fun errorListener(action: (String) -> Unit): Builder {
+        fun errorListener(action: (Throwable) -> Unit): Builder {
             this.onErrorListener = object : OnErrorListener {
-                override fun onError(message: String) {
-                    action(message)
+                override fun onError(throwable: Throwable) {
+                    action(throwable)
                 }
             }
             return this
         }
+
+        fun cancelListener(imageSelectCancelListener: ImageSelectCancelListener): Builder {
+            this.imageSelectCancelListener = imageSelectCancelListener
+            return this
+        }
+
+        fun cancelListener(action: () -> Unit): Builder =
+            cancelListener(object : ImageSelectCancelListener {
+                override fun onImageSelectCancel() {
+                    action.invoke()
+                }
+            })
 
 
         fun start(onSelectedListener: OnSelectedListener) {

@@ -25,13 +25,18 @@ TedImagePicker is **simple/beautiful/smart** image picker
 ## Setup
 
 ### Gradle
-
-[ ![Download](https://api.bintray.com/packages/tkdrnjs0912/maven/tedimagepicker/images/download.svg) ](https://bintray.com/tkdrnjs0912/maven/tedimagepicker/_latestVersion)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.ParkSangGwon/tedimagepicker.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.ParkSangGwon%22%20AND%20a:%tedimagepicker%22)
 
 ```gradle
+
+repositories {
+  google()
+  mavenCentral()
+}
+
 dependencies {
-    implementation 'gun0912.ted:tedimagepicker:x.y.z'
-    //implementation 'gun0912.ted:tedimagepicker:1.0.0'
+    implementation 'io.github.ParkSangGwon:tedimagepicker:x.y.z'
+    //implementation 'io.github.ParkSangGwon:tedimagepicker:1.1.10'
 }
 
 ```
@@ -142,35 +147,48 @@ TedRxImagePicker.with(this)
 
 #### Common
 
-* `mediaType(MediaType)` : MediaType.IMAGE / MediaType.VIDEO
-* `cameraTileBackground(R.color.xxx)`
-* `cameraTileImage(R.drawable.xxx)`
-* `showCameraTile(Boolean) (default: true)`
-* `scrollIndicatorDateFormat(String)(default: YYYY.MM)`
-* `title(String or R.string.xxx) (default: 'Select Image','사진 선택')`
-* `backButton(R.drawable.xxx)`
-* `zoomIndicator(Boolean) (default: true)`
-* `image()`
-* `video()`
+|      Function        |    Description    | 
+| ----------------------- | ---------------- |
+| `mediaType(MediaType)` | MediaType.IMAGE / MediaType.VIDEO |
+| `cameraTileBackground(R.color.xxx)`| camera Tile Background Color |
+| `cameraTileImage(R.drawable.xxx)` | camera tile image |
+| `showCameraTile(Boolean)` default `true` | show camera tile |
+| `scrollIndicatorDateFormat(String) (default: YYYY.MM)` | Format of date on scroll indicator |
+| `showTitle(Boolean)(default: true)` | Show title |
+| `title(String or R.string.xxx) (default: 'Select Image','사진 선택')` | title |
+| `backButton(R.drawable.xxx)` | back button |
+| `zoomIndicator(Boolean) (default: true)`| zoom indicator |
+| `image()` | image |
+| `video()` | video |
+| `imageCountTextFormat(String) (default: %s)`: `%s장`,  `Count: %s`| image count text format |
+| `savedDirectoryName(String)` | saved directory name from take picture using camera |
+| `startAnimation(Int, Int)` | start animation |
+| `finishAnimation(Int, Int)` | finish animation |
+| `errorListener()` | error listener for error |
+| `cancelListener()` | cancel listener |
 
-- `mediaType(MediaType)` : MediaType.IMAGE / MediaType.VIDEO
-- `cameraTileBackground(R.color.xxx)`
-- `cameraTileImage(R.drawable.xxx)`
-- `showCameraTile(Boolean) (default: true)`
-- `scrollIndicatorDateFormat(String)(default: YYYY.MM)`
-- `title(String or R.string.xxx) (default: 'Select Image','사진 선택')`
-- `backButton(R.drawable.xxx)`
-- `zoomIndicator(Boolean) (default: true)`
+
+- Change picker primary color
+: override color name in your colors.xml
+```xml
+    <color name="ted_image_picker_primary">#your_color_code</color>
+    <color name="ted_image_picker_primary_pressed">#your_color_code</color>
+```
 
 #### Multi Select
 
-- `selectedUri(List<Uri>)`
-- `buttonGravity(ButtonGravity)`: You can change `done` button location top or bottom
-- `buttonText(String or R.string.xxx) (default: 'Done','완료')`
-- `buttonBackground(R.drawable.xxx) (default: Blue Background)`
-- `buttonTextColor(R.color.xxx) (default: white)`
-- `max(Int, String or R.string.xxx)`
-- `min(Int, String or R.string.xxx)`
+|      Method        |    Description    | 
+| ----------------------- | ---------------- |
+| `selectedUri(List<Uri>)` | selected uri |
+| `buttonGravity(ButtonGravity)` | You can change `done` button location top or bottom |
+| `buttonText(String or R.string.xxx) (default: 'Done','완료')` | you can change `done` button text |
+| `buttonBackground(R.drawable.xxx) (default: Blue Background)` | you can change `done` button background color |
+| `buttonTextColor(R.color.xxx) (default: white)` | `done` button text color |
+| `buttonDrawableOnly(R.drawable.xxx) (default: false)` | If you want show drawable button without text, use this method |
+| `max(Int, String or R.string.xxx)` | **max content** should picked from user device |
+| `min(Int, String or R.string.xxx)` | **min content** should picked from user device |
+| `drawerAlbum() / dropDownAlbum() (default: Drawer)`| You can choice Drawer or DropDown album style |
+
   </br></br>
 
 ## FAQ

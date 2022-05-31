@@ -11,10 +11,10 @@ import android.text.format.DateUtils
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.recyclerview.widget.RecyclerView.NO_POSITION
 import com.bumptech.glide.Glide
 import gun0912.tedimagepicker.R
 import gun0912.tedimagepicker.base.BaseSimpleHeaderAdapter
@@ -24,16 +24,16 @@ import gun0912.tedimagepicker.builder.type.MediaType
 import gun0912.tedimagepicker.databinding.ItemGalleryCameraBinding
 import gun0912.tedimagepicker.databinding.ItemGalleryMediaBinding
 import gun0912.tedimagepicker.model.Media
+import gun0912.tedimagepicker.util.ToastUtil
 import gun0912.tedimagepicker.zoom.TedImageZoomActivity
-import kotlinx.android.synthetic.main.item_gallery_media.view.*
-import java.io.File
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 internal class MediaAdapter(
     private val activity: Activity,
-    private val builder: TedImagePickerBaseBuilder<*>,
-    private var squareSize: Int
-) :
-    BaseSimpleHeaderAdapter<Media>(if (builder.showCameraTile) 1 else 0) {
+    private val builder: TedImagePickerBaseBuilder<*>
+) : BaseSimpleHeaderAdapter<Media>(if (builder.showCameraTile) 1 else 0) {
 
     internal val selectedUriList: MutableList<Uri> = mutableListOf()
     var onMediaAddListener: (() -> Unit)? = null
@@ -41,6 +41,7 @@ internal class MediaAdapter(
     fun setSquareSize(size: Int) {
         squareSize = size
     }
+    private val executorService: ExecutorService = Executors.newFixedThreadPool(4)
 
     override fun getHeaderViewHolder(parent: ViewGroup) = CameraViewHolder(parent)
     override fun getItemViewHolder(parent: ViewGroup) = ImageViewHolder(parent)
@@ -57,7 +58,7 @@ internal class MediaAdapter(
         if (selectedUriList.size == builder.maxCount) {
             val message =
                 builder.maxCountMessage ?: activity.getString(builder.maxCountMessageResId)
-            Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
+            ToastUtil.showToast(message)
         } else {
             selectedUriList.add(uri)
             onMediaAddListener?.invoke()
@@ -95,7 +96,9 @@ internal class MediaAdapter(
                 selectType = builder.selectType
                 isSelected = false
                 viewZoomOut.setOnClickListener {
-                    startZoomActivity(getItem(adapterPosition))
+                    val item = getItem(adapterPosition.takeIf { it != NO_POSITION }
+                        ?: return@setOnClickListener)
+                    startZoomActivity(item)
                 }
                 showZoom = false
                 showDuration = false
@@ -158,12 +161,41 @@ internal class MediaAdapter(
                     itemView.warning_view.visibility = View.VISIBLE
                 }
 
-                showZoom = !isSelected && (builder.mediaType == MediaType.IMAGE) && builder.showZoomIndicator
+                showZoom =
+                    !isSelected && (builder.mediaType == MediaType.IMAGE) && builder.showZoomIndicator
+
+                if (builder.mediaType == MediaType.VIDEO && builder.showVideoDuration) {
+                    setVideoDuration(data.uri)
+                }
             }
         }
 
+        private fun setVideoDuration(uri: Uri) = executorService.execute {
+            val durationMills = uri.getVideoDuration() ?: return@execute
+            val hours = TimeUnit.MILLISECONDS.toHours(durationMills)
+            val minutes = TimeUnit.MILLISECONDS.toMinutes(durationMills)
+            val seconds = TimeUnit.MILLISECONDS.toSeconds(durationMills)
+            binding.duration =
+                if (hours > 0) {
+                    String.format("%d:%02d:%02d", hours, minutes, seconds)
+                } else {
+                    String.format("%02d:%02d", minutes, seconds)
+                }
+        }
+
+        private fun Uri.getVideoDuration(): Long? {
+            val retriever = MediaMetadataRetriever()
+            retriever.setDataSource(context, this)
+            val time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+            retriever.release()
+            return time?.toLongOrNull()
+        }
+
         override fun recycled() {
-            Glide.with(itemView).clear(binding.ivImage)
+            if (activity.isDestroyed) {
+                return
+            }
+            Glide.with(activity).clear(binding.ivImage)
         }
 
         private fun startZoomActivity(media: Media) {
@@ -187,7 +219,5 @@ internal class MediaAdapter(
             binding.ivImage.setImageResource(builder.cameraTileImageResId)
             itemView.setBackgroundResource(builder.cameraTileBackgroundResId)
         }
-
     }
-
 }

@@ -31,6 +31,7 @@ class MainActivity : AppCompatActivity() {
         setRxSingleButton()
         setRxMultiButton()
         setRxVideoButton()
+        setRxMultiDropDown()
     }
 
     private fun setNormalSingleButton() {
@@ -63,6 +64,7 @@ class MainActivity : AppCompatActivity() {
                 //.buttonBackground(R.drawable.btn_sample_done_button)
                 //.buttonTextColor(R.color.sample_yellow)
                 .errorListener { message -> Log.d("ted", "message: $message") }
+                .cancelListener { Log.d("ted", "image select cancel") }
                 .selectedUri(selectedUriList)
                 .startMultiImage { list: List<Uri> -> showMultiImage(list) }
         }
@@ -79,6 +81,16 @@ class MainActivity : AppCompatActivity() {
     private fun setRxMultiButton() {
         binding.btnRxMulti.setOnClickListener {
             TedRxImagePicker.with(this)
+                .startMultiImage()
+                .subscribe(this::showMultiImage, Throwable::printStackTrace)
+        }
+    }
+
+    private fun setRxMultiDropDown() {
+        binding.btnRxMultiDropDown.setOnClickListener {
+            TedRxImagePicker.with(this)
+                .dropDownAlbum()
+                .imageCountTextFormat("%s장")
                 .startMultiImage()
                 .subscribe(this::showMultiImage, Throwable::printStackTrace)
         }

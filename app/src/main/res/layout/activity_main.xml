@@ -16,20 +16,17 @@
             android:layout_height="wrap_content"
             android:text="Normal - Single" />
 
-
         <Button
             android:id="@+id/btn_normal_multi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Normal - Multi" />
 
-
         <Button
             android:id="@+id/btn_rx_single"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Rx - Single" />
-
 
         <Button
             android:id="@+id/btn_rx_multi"
@@ -38,17 +35,22 @@
             android:text="Rx - Multi" />
 
         <Button
-                android:id="@+id/btn_video"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Video" />
+            android:id="@+id/btn_video"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Video" />
+
+        <Button
+            android:id="@+id/btn_rx_multi_drop_down"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rx - Multi - DropDown" />
 
         <ImageView
             android:id="@+id/iv_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/activity_vertical_margin" />
-
 
         <HorizontalScrollView
             android:id="@+id/hsv_image"

@@ -17,6 +17,7 @@ internal class DataBindingAdapter {
             Glide.with(imageView.context)
                 .load(uri)
                 .thumbnail(0.1f)
+                .dontAnimate()
                 .into(imageView)
         }
 
@@ -49,6 +50,27 @@ internal class DataBindingAdapter {
                 false -> 0f
             }
             view.animate().translationY(animateValue).start()
+        }
+
+        @BindingAdapter("src")
+        @JvmStatic
+        fun setImageViewResource(imageView: ImageView, resId: Int?) {
+            try {
+                resId?.let { imageView.setImageResource(it) }
+            } catch (e: Exception) {
+
+            }
+
+        }
+
+        @BindingAdapter("background")
+        @JvmStatic
+        fun setBackgroundResource(view: View, resId: Int?) {
+            try {
+                resId?.let { view.setBackgroundResource(it) }
+            } catch (e: Exception) {
+
+            }
         }
 
     }

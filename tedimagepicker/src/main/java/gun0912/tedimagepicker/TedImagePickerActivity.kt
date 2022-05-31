@@ -17,7 +17,6 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -34,6 +33,7 @@ import gun0912.tedimagepicker.adapter.MediaAdapter
 import gun0912.tedimagepicker.adapter.SelectedMediaAdapter
 import gun0912.tedimagepicker.base.BaseRecyclerViewAdapter
 import gun0912.tedimagepicker.builder.TedImagePickerBaseBuilder
+import gun0912.tedimagepicker.builder.type.AlbumType
 import gun0912.tedimagepicker.builder.type.SelectType
 import gun0912.tedimagepicker.databinding.ActivityTedImagePickerBinding
 import gun0912.tedimagepicker.extenstion.*
@@ -41,6 +41,7 @@ import gun0912.tedimagepicker.model.Album
 import gun0912.tedimagepicker.model.Media
 import gun0912.tedimagepicker.util.GalleryUtil
 import gun0912.tedimagepicker.util.MediaUtil
+import gun0912.tedimagepicker.util.ToastUtil
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -56,7 +57,7 @@ import kotlin.math.ceil
 internal class TedImagePickerActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityTedImagePickerBinding
-    private val albumAdapter = AlbumAdapter(null)
+    private val albumAdapter by lazy { AlbumAdapter(builder) }
     private lateinit var mediaAdapter: MediaAdapter
     private lateinit var selectedMediaAdapter: SelectedMediaAdapter
 
@@ -69,15 +70,26 @@ internal class TedImagePickerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setSavedInstanceState(savedInstanceState)
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.O) {
+            requestedOrientation = builder.screenOrientation
+        }
+        startAnimation()
         binding = DataBindingUtil.setContentView(this, R.layout.activity_ted_image_picker)
-
+        binding.imageCountFormat = builder.imageCountFormat
         setupToolbar()
         setupTitle()
         setupRecyclerView()
         setupListener()
         setupSelectedMediaView()
         setupButton()
+        setupAlbumType()
         loadMedia()
+    }
+
+    private fun startAnimation() {
+        if (builder.startEnterAnim != null && builder.startExitAnim != null) {
+            overridePendingTransition(builder.startEnterAnim!!, builder.startExitAnim!!)
+        }
     }
 
     private fun setupToolbar() {
@@ -97,6 +109,7 @@ internal class TedImagePickerActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
+        supportActionBar?.setDisplayShowTitleEnabled(builder.showTitle)
         builder.backButtonResId.let {
             val drawable = resources.getDrawable(it)
             drawable.setColorFilter(ContextCompat.getColor(this@TedImagePickerActivity, builder.backButtonColorId), PorterDuff.Mode.SRC_IN)
@@ -128,9 +141,10 @@ internal class TedImagePickerActivity : AppCompatActivity() {
 
             buttonGravity = builder.buttonGravity
             buttonText = builder.buttonText ?: getString(builder.buttonTextResId)
-            buttonTextColor = ContextCompat.getColor(this@TedImagePickerActivity, builder.buttonTextColorResId)
-            buttonBackground =
-                ContextCompat.getDrawable(this@TedImagePickerActivity, builder.buttonBackgroundResId)
+            buttonTextColor =
+                ContextCompat.getColor(this@TedImagePickerActivity, builder.buttonTextColorResId)
+            buttonBackground = builder.buttonBackgroundResId
+            buttonDrawableOnly = builder.buttonDrawableOnly
         }
 
         setupButtonVisibility()
@@ -153,6 +167,7 @@ internal class TedImagePickerActivity : AppCompatActivity() {
                 if (!isRefresh) {
                     setSelectedUriList(builder.selectedUriList)
                 }
+                binding.layoutContent.rvMedia.visibility = View.VISIBLE
 
             }
     }
@@ -188,16 +203,17 @@ internal class TedImagePickerActivity : AppCompatActivity() {
     private fun setupAlbumRecyclerView() {
         mediaCounter.setTextColor(ContextCompat.getColor(applicationContext, builder.mediaCountTextColor))
 
-        binding.rvAlbum.run {
-
-            adapter = albumAdapter.apply {
-                onItemClickListener = object : BaseRecyclerViewAdapter.OnItemClickListener<Album> {
-                    override fun onItemClick(data: Album, itemPosition: Int, layoutPosition: Int) {
-                        this@TedImagePickerActivity.setSelectedAlbum(itemPosition)
-                        binding.drawerLayout.close()
-                    }
+        val albumAdapter = albumAdapter.apply {
+            onItemClickListener = object : BaseRecyclerViewAdapter.OnItemClickListener<Album> {
+                override fun onItemClick(data: Album, itemPosition: Int, layoutPosition: Int) {
+                    this@TedImagePickerActivity.setSelectedAlbum(itemPosition)
+                    binding.drawerLayout.close()
+                    binding.isAlbumOpened = false
                 }
             }
+        }
+        binding.rvAlbum.run {
+            adapter = albumAdapter
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                     binding.drawerLayout.setLock(newState == RecyclerView.SCROLL_STATE_DRAGGING)
@@ -205,6 +221,7 @@ internal class TedImagePickerActivity : AppCompatActivity() {
             })
         }
 
+        binding.rvAlbumDropDown.adapter = albumAdapter
 
     }
 
@@ -212,6 +229,7 @@ internal class TedImagePickerActivity : AppCompatActivity() {
         mediaAdapter = MediaAdapter(this, builder, dp2px(137)).apply {
             onItemClickListener = object : BaseRecyclerViewAdapter.OnItemClickListener<Media> {
                 override fun onItemClick(data: Media, itemPosition: Int, layoutPosition: Int) {
+                    binding.isAlbumOpened = false
                     this@TedImagePickerActivity.onMediaClick(data.uri)
                 }
 
@@ -288,7 +306,8 @@ internal class TedImagePickerActivity : AppCompatActivity() {
     private fun onCameraTileClick() {
         val (cameraIntent, uri) = MediaUtil.getMediaIntentUri(
             this@TedImagePickerActivity,
-            builder.mediaType
+            builder.mediaType,
+            builder.savedDirectoryName
         )
         TedRxOnActivityResult.with(this@TedImagePickerActivity)
             .startActivityForResult(cameraIntent)
@@ -333,7 +352,6 @@ internal class TedImagePickerActivity : AppCompatActivity() {
     }
 
     private fun updateSelectedMediaView() {
-        Log.d("ted", "mediaAdapter.selectedUriList.size: ${mediaAdapter.selectedUriList.size}")
         binding.layoutContent.viewSelectedMedia.post {
             binding.layoutContent.viewSelectedMedia.run {
                 if (mediaAdapter.selectedUriList.size > 0) {
@@ -371,13 +389,24 @@ internal class TedImagePickerActivity : AppCompatActivity() {
         finish()
     }
 
+    override fun finish() {
+        super.finish()
+        finishAnimation()
+    }
+
+    private fun finishAnimation() {
+        if (builder.finishEnterAnim != null && builder.finishExitAnim != null) {
+            overridePendingTransition(builder.finishEnterAnim!!, builder.finishExitAnim!!)
+        }
+    }
+
     private fun onMultiMediaDone() {
 
 
         val selectedUriList = mediaAdapter.selectedUriList
         if (selectedUriList.size < builder.minCount) {
             val message = builder.minCountMessage ?: getString(builder.minCountMessageResId)
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+            ToastUtil.showToast(message)
         } else {
 
             val data = Intent().apply {
@@ -418,15 +447,44 @@ internal class TedImagePickerActivity : AppCompatActivity() {
             onMultiMediaDone()
         }
 
+        binding.viewSelectedAlbumDropDown.setOnClickListener {
+            binding.isAlbumOpened = !binding.isAlbumOpened
+        }
+
     }
 
+    private fun setupAlbumType() {
+        if (builder.albumType == AlbumType.DRAWER) {
+            binding.viewSelectedAlbumDropDown.visibility = View.GONE
+        } else {
+            binding.viewBottom.visibility = View.GONE
+            binding.drawerLayout.setLock(true)
+        }
+    }
+
+
     override fun onBackPressed() {
-        binding.drawerLayout.run {
-            if (isOpen()) {
-                close()
-            } else {
-                super.onBackPressed()
-            }
+        if (isAlbumOpened()) {
+            closeAlbum()
+        } else {
+            super.onBackPressed()
+        }
+
+    }
+
+    private fun isAlbumOpened(): Boolean =
+        if (builder.albumType == AlbumType.DRAWER) {
+            binding.drawerLayout.isOpen()
+        } else {
+            binding.isAlbumOpened
+        }
+
+    private fun closeAlbum() {
+
+        if (builder.albumType == AlbumType.DRAWER) {
+            binding.drawerLayout.close()
+        } else {
+            binding.isAlbumOpened = false
         }
     }
 
